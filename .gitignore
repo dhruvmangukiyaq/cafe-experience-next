@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Env files (NEVER push real MongoDB URI to GitHub)
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Logs
+*.log
+nohup.out
+backend/backend.log
+frontend/frontend.log
+
+# OS
+.DS_Store
