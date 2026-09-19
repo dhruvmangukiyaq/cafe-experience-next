@@ -1,14 +1,24 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Cafe Experience',
-  description: 'Track and rate your cafe experiences',
+  title: 'Cafe Experience Tracker',
+  description: 'All your cafe visits, ratings and work-friendly spots in one place.',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
+        <main className="container">{children}</main>
+      </body>
     </html>
   );
 }
