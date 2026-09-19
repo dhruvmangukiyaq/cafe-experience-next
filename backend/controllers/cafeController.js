@@ -1,172 +1,80 @@
 const Cafe = require('../models/Cafe');
+const asyncHandler = require('../middleware/asyncHandler');
 
-const cafeController = {
-  // Create a new cafe
-  createCafe: async (req, res) => {
-    try {
-      const { name, city, area, foodSpecialties, environment, avgPricePerPerson, 
-              wifiQuality, powerPlugsAvailable, ambienceTags, rating, notes } = req.body;
-
-      if (!name || !city) {
-        return res.status(400).json({
-          success: false,
-          message: 'Name and city are required'
-        });
-      }
-
-      const cafe = await Cafe.create({
-        name,
-        city,
-        area,
-        foodSpecialties: foodSpecialties || [],
-        environment: environment || {},
-        avgPricePerPerson,
-        wifiQuality,
-        powerPlugsAvailable,
-        ambienceTags: ambienceTags || [],
-        rating,
-        notes
-      });
-
-      res.status(201).json({
-        success: true,
-        data: cafe
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  // Get all cafes with filters
-  getCafes: async (req, res) => {
-    try {
-      const { city, tag, minRating } = req.query;
-      
-      const query = { isDeleted: false };
-
-      if (city) {
-        query.city = new RegExp(city, 'i');
-      }
-
-      if (tag) {
-        query.ambienceTags = { $in: [new RegExp(tag, 'i')] };
-      }
-
-      if (minRating) {
-        query.rating = { $gte: Number(minRating) };
-      }
-
-      const cafes = await Cafe.find(query).sort({ createdAt: -1 });
-
-      res.json({
-        success: true,
-        data: cafes
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  // Get single cafe by id
-  getCafeById: async (req, res) => {
-    try {
-      const cafe = await Cafe.findOne({ _id: req.params.id, isDeleted: false });
-
-      if (!cafe) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cafe not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: cafe
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  // Update cafe
-  updateCafe: async (req, res) => {
-    try {
-      const { name, city, area, foodSpecialties, environment, avgPricePerPerson,
-              wifiQuality, powerPlugsAvailable, ambienceTags, rating, notes } = req.body;
-
-      const cafe = await Cafe.findOneAndUpdate(
-        { _id: req.params.id, isDeleted: false },
-        {
-          name,
-          city,
-          area,
-          foodSpecialties,
-          environment,
-          avgPricePerPerson,
-          wifiQuality,
-          powerPlugsAvailable,
-          ambienceTags,
-          rating,
-          notes
-        },
-        { new: true, runValidators: true }
-      );
-
-      if (!cafe) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cafe not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: cafe
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  // Soft delete cafe
-  deleteCafe: async (req, res) => {
-    try {
-      const cafe = await Cafe.findOneAndUpdate(
-        { _id: req.params.id, isDeleted: false },
-        { isDeleted: true },
-        { new: true }
-      );
-
-      if (!cafe) {
-        return res.status(404).json({
-          success: false,
-          message: 'Cafe not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: null
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  }
+// Helper to throw an error with a status code
+const httpError = (statusCode, message) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
 };
 
-module.exports = cafeController;
+// 1) POST /api/cafes — create a cafe
+exports.createCafe = asyncHandler(async (req, res) => {
+  const { name, city } = req.body;
+
+  // Manual required-field check (Mongoose also validates)
+  if (!name || !city) {
+    throw httpError(400, 'name and city are required');
+  }
+
+  const cafe = await Cafe.create(req.body);
+  res.status(201).json({ success: true, data: cafe });
+});
+
+// 2) GET /api/cafes?city=&tag=&minRating= — list (excludes soft-deleted)
+exports.getCafes = asyncHandler(async (req, res) => {
+  const { city, tag, minRating } = req.query;
+
+  // Always hide soft-deleted docs
+  const filter = { isDeleted: false };
+
+  if (city) {
+    // Case-insensitive exact match on city
+    filter.city = new RegExp(`^${city}$`, 'i');
+  }
+  if (tag) {
+    // Match one value inside the ambienceTags array
+    filter.ambienceTags = tag;
+  }
+  if (minRating !== undefined && minRating !== '') {
+    filter.rating = { $gte: Number(minRating) };
+  }
+
+  const cafes = await Cafe.find(filter).sort({ createdAt: -1 });
+  res.json({ success: true, data: cafes });
+});
+
+// 3) GET /api/cafes/:id — single cafe
+exports.getCafeById = asyncHandler(async (req, res) => {
+  const cafe = await Cafe.findOne({ _id: req.params.id, isDeleted: false });
+  if (!cafe) {
+    throw httpError(404, 'Cafe not found');
+  }
+  res.json({ success: true, data: cafe });
+});
+
+// 4) PUT /api/cafes/:id — update fields
+exports.updateCafe = asyncHandler(async (req, res) => {
+  const cafe = await Cafe.findOneAndUpdate(
+    { _id: req.params.id, isDeleted: false },
+    req.body,
+    { new: true, runValidators: true } // return updated doc + run schema validation
+  );
+  if (!cafe) {
+    throw httpError(404, 'Cafe not found');
+  }
+  res.json({ success: true, data: cafe });
+});
+
+// 5) DELETE /api/cafes/:id — soft delete
+exports.deleteCafe = asyncHandler(async (req, res) => {
+  const cafe = await Cafe.findOneAndUpdate(
+    { _id: req.params.id, isDeleted: false },
+    { isDeleted: true },
+    { new: true }
+  );
+  if (!cafe) {
+    throw httpError(404, 'Cafe not found');
+  }
+  res.json({ success: true, data: null });
+});

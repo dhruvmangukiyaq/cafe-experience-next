@@ -1,4 +1,5 @@
 import './globals.css';
+import { AuthProvider } from './auth';
 
 export const metadata = {
   title: 'Cafe Experience Tracker',
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <main className="container">{children}</main>
+        <AuthProvider>
+          <main className="container">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,12 +1,21 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getCafes, deleteCafe, createCafe, updateCafe } from './apiClient';
-import CafeList from './components/CafeList';
-import CafeForm from './components/CafeForm';
-import BackButton from './components/BackButton';
+import { getCafes, deleteCafe, createCafe, updateCafe } from '../apiClient';
+import CafeList from '../components/CafeList';
+import CafeForm from '../components/CafeForm';
+import BackButton from '../components/BackButton';
+import RequireAuth from '../components/RequireAuth';
 
-export default function Home() {
+export default function Dashboard() {
+  return (
+    <RequireAuth>
+      <DashboardContent />
+    </RequireAuth>
+  );
+}
+
+function DashboardContent() {
   const [cafes, setCafes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [banner, setBanner] = useState('');
