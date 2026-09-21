@@ -5,8 +5,17 @@ import { useRouter } from 'next/navigation';
 import { createCafe, uploadFiles } from '../apiClient';
 import CafeForm from '../components/CafeForm';
 import BackButton from '../components/BackButton';
+import RequireAuth from '../components/RequireAuth';
 
 export default function AddCafePage() {
+  return (
+    <RequireAuth>
+      <AddCafeContent />
+    </RequireAuth>
+  );
+}
+
+function AddCafeContent() {
   const router = useRouter();
   const [banner, setBanner] = useState('');
 

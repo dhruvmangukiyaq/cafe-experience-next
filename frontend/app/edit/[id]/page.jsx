@@ -6,8 +6,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { getCafe, updateCafe } from '../../apiClient';
 import CafeForm from '../../components/CafeForm';
 import BackButton from '../../components/BackButton';
+import RequireAuth from '../../components/RequireAuth';
 
 export default function EditCafePage() {
+  return (
+    <RequireAuth>
+      <EditCafeContent />
+    </RequireAuth>
+  );
+}
+
+function EditCafeContent() {
   const { id } = useParams();
   const router = useRouter();
   const [cafe, setCafe] = useState(null);

@@ -6,13 +6,14 @@ const {
   updateCafe,
   deleteCafe,
 } = require('../controllers/cafeController');
+const protect = require('../middleware/auth');
 
 const router = express.Router();
 
-// /api/cafes
-router.route('/').post(createCafe).get(getCafes);
+// /api/cafes (write routes need login; reading stays public)
+router.route('/').post(protect, createCafe).get(getCafes);
 
-// /api/cafes/:id
-router.route('/:id').get(getCafeById).put(updateCafe).delete(deleteCafe);
+// /api/cafes/:id (write routes need login; reading stays public)
+router.route('/:id').get(getCafeById).put(protect, updateCafe).delete(protect, deleteCafe);
 
 module.exports = router;
