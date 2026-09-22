@@ -705,9 +705,8 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(560px 380px at 12% -4%, rgba(168, 85, 247, 0.22), transparent 65%),
-    radial-gradient(640px 420px at 88% 8%, rgba(79, 70, 229, 0.18), transparent 65%),
-    radial-gradient(700px 500px at 50% 110%, rgba(217, 154, 43, 0.10), transparent 65%);
+    radial-gradient(700px 420px at 50% -6%, rgba(109, 40, 217, 0.14), transparent 65%),
+    radial-gradient(800px 560px at 50% 112%, rgba(109, 40, 217, 0.10), transparent 65%);
 }
 body > * { position: relative; z-index: 1; }
 
@@ -842,55 +841,59 @@ input, select, textarea { background: #100b1a; color: var(--ink); }
 .pick-pin { background: #a855f7; }
 
 /* ============================================================
-   CURSOR AURA — colors trailing the cursor across every page.
+   LIQUID-INK CURSOR — canvas ink drops dispersing like in water.
    ============================================================ */
-.cursor-aura {
+.cursor-aura-canvas {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 0;
   pointer-events: none;
-  overflow: hidden;
   mix-blend-mode: screen;
 }
-.cursor-aura .blob {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 520px;
-  height: 520px;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
-  will-change: transform;
+/* Page content always floats above the ink layer */
+main.container {
+  position: relative;
+  z-index: 1;
 }
-.cursor-aura .b1 {
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.55), transparent 65%);
-  transform: translate(calc(var(--ax, 50vw) - 260px), calc(var(--ay, 30vh) - 260px));
-  transition: transform 0.12s linear;
+/* ============================================================
+   SIGNATURE MOVING SHINE — Automatez-style rotating gradient
+   border beam on every primary CTA + hover glow on cards.
+   ============================================================ */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
-.cursor-aura .b2 {
-  width: 380px;
-  height: 380px;
-  background: radial-gradient(circle, rgba(217, 70, 160, 0.42), transparent 65%);
-  transform: translate(calc(var(--bx, 50vw) - 190px), calc(var(--by, 30vh) - 190px));
-  transition: transform 0.22s linear;
-  animation: aura-hue 9s linear infinite;
+.site-btn-gold, .btn-add, .btn-primary, .site-cta {
+  position: relative;
+  background:
+    linear-gradient(#1c1330, #1c1330) padding-box,
+    conic-gradient(from var(--border-angle), #a855f7, #e2a63d, #6d28d9, #4f46e5, #a855f7) border-box !important;
+  border: 1.5px solid transparent !important;
+  color: #fff !important;
+  animation: border-spin 3.5s linear infinite;
 }
-.cursor-aura .b3 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(226, 166, 61, 0.30), transparent 65%);
-  transform: translate(calc(var(--cx, 50vw) - 150px), calc(var(--cy, 30vh) - 150px));
-  transition: transform 0.34s linear;
-  animation: aura-hue 12s linear infinite reverse;
+.site-btn-gold:hover, .btn-add:hover, .btn-primary:hover, .site-cta:hover {
+  background:
+    linear-gradient(#2a1c4a, #2a1c4a) padding-box,
+    conic-gradient(from var(--border-angle), #c084fc, #f3c96b, #8b5cf6, #818cf8, #c084fc) border-box !important;
+  box-shadow: 0 0 26px rgba(168, 85, 247, 0.55);
 }
-@keyframes aura-hue {
-  to { filter: blur(90px) hue-rotate(360deg); }
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
 }
+.site-card, .site-stat, .site-step, .stat-card, .table-card, .auth-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.site-card:hover, .site-stat:hover, .site-step:hover, .stat-card:hover {
+  border-color: rgba(168, 85, 247, 0.65) !important;
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.28), 0 16px 34px rgba(0, 0, 0, 0.45);
+}
+.site-link:hover { border-color: transparent; }
+.site-vibe:hover, .site-cta { box-shadow: none; }
 @media (pointer: coarse) {
-  .cursor-aura { display: none; }
+  .cursor-aura-canvas { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cursor-aura, body::before { display: none; }
-  .cursor-aura .b2, .cursor-aura .b3 { animation: none; }
+  .cursor-aura-canvas, body::before { display: none; }
 }
