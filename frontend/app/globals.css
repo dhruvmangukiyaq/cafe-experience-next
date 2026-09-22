@@ -624,3 +624,53 @@ button.danger { background: transparent; color: var(--red-btn); border: 1px soli
   .site-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
   .site-nav { padding: 16px 48px; }
 }
+
+/* ---------- Cafe map (Explore page) ---------- */
+.cafe-map-card {
+  background: #fffdf8;
+  border: 2px solid #211a13;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(33, 26, 19, 0.12);
+}
+.cafe-map { height: 420px; width: 100%; z-index: 1; border-bottom: 2px solid #211a13; }
+.cafe-map-legend {
+  margin: 0; padding: 12px 18px;
+  color: #6f6257; font-size: 13.5px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  background: #fffdf8;
+}
+.cafe-map-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #245c45; display: inline-block; flex-shrink: 0;
+}
+.cafe-map-empty { margin: 0; padding: 14px 18px; color: var(--muted, #6f6257); font-size: 14px; }
+.cafe-pin-wrap { background: transparent; border: none; }
+.cafe-tag {
+  width: 170px; display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+}
+.cafe-tag-name {
+  background: #fffdf8; color: #211a13;
+  border: 2px solid #245c45; border-radius: 20px;
+  padding: 5px 12px; font-size: 12.5px; font-weight: 700; font-family: 'Inter', system-ui, sans-serif;
+  white-space: nowrap; max-width: 170px; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 3px 10px rgba(33, 26, 19, 0.28);
+}
+.cafe-tag:hover .cafe-tag-name { background: #245c45; color: #fff; }
+.cafe-tag-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #245c45; border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(33, 26, 19, 0.4);
+  margin-top: -1px;
+}
+.cafe-pin-pop { display: flex; flex-direction: column; gap: 4px; font-size: 13px; min-width: 140px; }
+.cafe-pin-pop b { font-size: 15px; }
+.cafe-pin-pop span { color: #6f6257; }
+.cafe-pin-pop button {
+  margin-top: 6px; background: #245c45; color: #fff; border: none;
+  border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer;
+}
+@media (max-width: 640px) {
+  .cafe-map { height: 320px; }
+}

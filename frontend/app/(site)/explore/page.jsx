@@ -2,11 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { getCafes } from '../../apiClient';
 import { VIBES } from '../../site-helpers';
 import CafeCard from '../../components/CafeCard';
 import CafeDetailModal from '../../components/CafeDetailModal';
 import BackButton from '../../components/BackButton';
+
+// Leaflet needs window — client-only import so the build stays static-safe
+const CafeMap = dynamic(() => import('../../components/CafeMap'), {
+  ssr: false,
+  loading: () => <div className="site-empty">Loading map…</div>,
+});
 
 export default function ExplorePage() {
   const [cafes, setCafes] = useState([]);
@@ -66,6 +73,16 @@ export default function ExplorePage() {
           ) : (
             <div className="site-empty">No cafe matches this vibe yet — add one from the Dashboard!</div>
           )
+        )}
+      </section>
+
+      <section className="site-section" style={{ paddingTop: 30 }}>
+        <p className="site-kicker">Map</p>
+        <div className="site-section-head"><h2>Cafes on the map</h2></div>
+        {loading ? (
+          <div className="site-empty">Loading map…</div>
+        ) : (
+          <CafeMap cafes={results} onOpen={setSelected} />
         )}
       </section>
 

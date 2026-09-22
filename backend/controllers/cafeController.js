@@ -1,5 +1,6 @@
 const Cafe = require('../models/Cafe');
 const asyncHandler = require('../middleware/asyncHandler');
+const geocode = require('../utils/geocode');
 
 // Helper to throw an error with a status code
 const httpError = (statusCode, message) => {
@@ -15,6 +16,12 @@ exports.createCafe = asyncHandler(async (req, res) => {
   // Manual required-field check (Mongoose also validates)
   if (!name || !city) {
     throw httpError(400, 'name and city are required');
+  }
+
+  // Auto map pin when the client didn't send one
+  if (!req.body.location?.lat || !req.body.location?.lng) {
+    const pin = await geocode(req.body.area, city);
+    if (pin) req.body.location = pin;
   }
 
   const cafe = await Cafe.create(req.body);
@@ -55,6 +62,17 @@ exports.getCafeById = asyncHandler(async (req, res) => {
 
 // 4) PUT /api/cafes/:id — update fields
 exports.updateCafe = asyncHandler(async (req, res) => {
+  // Backfill the map pin when neither the update nor the saved doc has one
+  if (!req.body.location?.lat || !req.body.location?.lng) {
+    const existing = await Cafe.findOne(
+      { _id: req.params.id, isDeleted: false },
+      { area: 1, city: 1, 'location.lat': 1 }
+    );
+    if (existing && !existing.location?.lat) {
+      const pin = await geocode(req.body.area ?? existing.area, req.body.city ?? existing.city);
+      if (pin) req.body.location = pin;
+    }
+  }
   const cafe = await Cafe.findOneAndUpdate(
     { _id: req.params.id, isDeleted: false },
     req.body,

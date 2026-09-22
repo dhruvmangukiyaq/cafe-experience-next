@@ -79,6 +79,12 @@ const cafeSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Map pin — auto-geocoded from area + city on save
+    location: {
+      lat: { type: Number, min: -90, max: 90 },
+      lng: { type: Number, min: -180, max: 180 },
+    },
+
     // Soft-delete flag (we never hard-delete)
     isDeleted: { type: Boolean, default: false },
   },
