@@ -164,6 +164,17 @@ PORT=5002
 ```
 
 ### 5. Run Development Servers
+
+**Option A — One terminal (recommended):**
+```bash
+# From the project root (installs the one-terminal runner once)
+npm install
+
+# Starts backend (:5002) + frontend (:3001) together
+npm run dev
+```
+
+**Option B — Two terminals:**
 Open two terminals:
 
 **Terminal 1 — Backend API:**
