@@ -2,8 +2,11 @@
 
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 // Name-tag marker — cafe name pill with a dot pinned on the exact spot
 function pinIcon(name) {
@@ -20,7 +23,17 @@ function pinIcon(name) {
   });
 }
 
-// Re-fit the map whenever the visible pins change
+// Cluster badge — groups overlapping pins (same area) into one count.
+// Click to zoom in; at max zoom the pins spider out so every cafe shows.
+function clusterIcon(cluster) {
+  const n = cluster.getChildCount();
+  return L.divIcon({
+    className: 'cafe-cluster-wrap',
+    html: `<div class="cafe-cluster">${n}</div>`,
+    iconSize: [46, 46],
+    iconAnchor: [23, 23],
+  });
+}
 function FitBounds({ points }) {
   const map = useMap();
   useEffect(() => {
@@ -55,27 +68,35 @@ export default function CafeMap({ cafes, onOpen }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FitBounds points={points} />
-        {pinned.map((cafe) => (
-          <Marker
-            key={cafe._id}
-            position={[cafe.location.lat, cafe.location.lng]}
-            icon={pinIcon(cafe.name)}
-          >
+        <MarkerClusterGroup
+          chunkedLoading
+          showCoverageOnHover={false}
+          spiderfyOnMaxZoom
+          maxClusterRadius={60}
+          iconCreateFunction={clusterIcon}
+        >
+          {pinned.map((cafe) => (
+            <Marker
+              key={cafe._id}
+              position={[cafe.location.lat, cafe.location.lng]}
+              icon={pinIcon(cafe.name)}
+            >
             <Popup>
               <div className="cafe-pin-pop">
                 <b>{cafe.name}</b>
+                {cafe.address && <span>{cafe.address}</span>}
                 <span>
-                  {cafe.city}
-                  {cafe.area ? ` • ${cafe.area}` : ''}
+                  {cafe.area ? `${cafe.area}, ` : ''}{cafe.city}
                 </span>
-                {cafe.avgPricePerPerson != null && <span>₹{cafe.avgPricePerPerson}</span>}
-                <button type="button" onClick={() => onOpen(cafe)}>
-                  View details
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+                  {cafe.avgPricePerPerson != null && <span>₹{cafe.avgPricePerPerson}</span>}
+                  <button type="button" onClick={() => onOpen(cafe)}>
+                    View details
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
       {!pinned.length && (
         <p className="cafe-map-empty">

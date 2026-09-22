@@ -23,10 +23,14 @@ async function lookup(q) {
   }
 }
 
-async function geocode(area, city) {
-  const full = [area, city].filter(Boolean).join(', ');
-  // 1) area + city, 2) city only — first hit wins
-  return (await lookup(full)) || (await lookup(city));
+async function geocode(area, city, address) {
+  const full = [address, area, city].filter(Boolean).join(', ');
+  // 1) full address, 2) area + city, 3) city only — first hit wins
+  return (
+    (await lookup(full)) ||
+    (await lookup([area, city].filter(Boolean).join(', '))) ||
+    (await lookup(city))
+  );
 }
 
 module.exports = geocode;

@@ -18,6 +18,11 @@ const cafeSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // Full street address — shown on the map popup, used for geocoding
+    address: {
+      type: String,
+      trim: true,
+    },
 
     // Food served, e.g. ["Coffee", "Sandwich", "Pastry"]
     foodSpecialties: {

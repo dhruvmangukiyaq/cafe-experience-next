@@ -2,10 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { getCafes } from '../apiClient';
 import { avgRating, coverFor, isWorkFriendly, ratingStars, toArray, wifiSpeedLabel } from '../site-helpers';
 import CafeCard from '../components/CafeCard';
 import CafeDetailModal from '../components/CafeDetailModal';
+
+// Leaflet needs window — client-only import so the build stays static-safe
+const CafeMap = dynamic(() => import('../components/CafeMap'), {
+  ssr: false,
+  loading: () => <div className="site-empty">Loading map…</div>,
+});
 
 const MARQUEE = ['Work-friendly', 'Date Night', 'Slow Evenings', 'Great Espresso', 'Power Plugs', 'Cozy Corners'];
 
@@ -161,6 +168,17 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="site-section">
+        <p className="site-kicker">Map</p>
+        <div className="site-section-head">
+          <h2>Find them on the map</h2>
+          <Link href="/explore">Explore all →</Link>
+        </div>
+        {!loading && !error && !!cafes.length && (
+          <CafeMap cafes={cafes} onOpen={setSelected} />
+        )}
+      </section>
 
       <section className="site-section">
         <p className="site-kicker">How it works</p>

@@ -1,8 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { toArray } from '../site-helpers';
 import Attachments from './Attachments';
+
+// Mini map loads only in the browser (Leaflet needs window)
+const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
 
 const EMPTY_FORM = {
   name: '',
@@ -20,6 +24,9 @@ const EMPTY_FORM = {
   ambienceTags: '',
   rating: '',
   notes: '',
+  address: '',
+  mapLat: '',
+  mapLng: '',
 };
 
 function fromInitialValues(cafe) {
@@ -40,6 +47,9 @@ function fromInitialValues(cafe) {
     ambienceTags: toArray(cafe.ambienceTags).join(', '),
     rating: cafe.rating ?? '',
     notes: cafe.notes || '',
+    address: cafe.address || '',
+    mapLat: cafe.location?.lat ?? '',
+    mapLng: cafe.location?.lng ?? '',
   };
 }
 
@@ -61,11 +71,31 @@ export default function CafeForm({ initialValues, onSubmit, onCancel, title, sub
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
+  const useMyLocation = () => {
+    setError('');
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported on this device.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        set('mapLat', String(pos.coords.latitude.toFixed(6)));
+        set('mapLng', String(pos.coords.longitude.toFixed(6)));
+      },
+      () => setError('Could not get your location. Please enter it manually.'),
+      { timeout: 10000 }
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     if (!form.name.trim() || !form.city.trim()) {
       setError('Name and City are required.');
+      return;
+    }
+    if ((form.mapLat !== '' || form.mapLng !== '') && (form.mapLat === '' || form.mapLng === '')) {
+      setError('Enter both latitude and longitude for the map pin.');
       return;
     }
     const wifi = Number(form.wifiQuality);
@@ -91,8 +121,41 @@ export default function CafeForm({ initialValues, onSubmit, onCancel, title, sub
       ambienceTags: splitTags(form.ambienceTags),
       rating: form.rating === '' ? 0 : Number(form.rating),
       notes: form.notes.trim(),
+      address: form.address.trim() || undefined,
+      location:
+        form.mapLat !== '' && form.mapLng !== ''
+          ? { lat: Number(form.mapLat), lng: Number(form.mapLng) }
+          : undefined, // empty → backend auto-detects from address + area + city
     };
     onSubmit(payload, pending);
+  };
+
+  // "Find on map" — geocode the typed address and drop the pin there
+  const [finding, setFinding] = useState(false);
+  const findOnMap = async () => {
+    const q = [form.address, form.area, form.city].filter((s) => s && s.trim()).join(', ');
+    if (!q) {
+      setError('Pehla address / area / city lakho, pachi Find on map dabavo.');
+      return;
+    }
+    setFinding(true);
+    setError('');
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`
+      );
+      const [hit] = await res.json();
+      if (hit && Number.isFinite(Number(hit.lat))) {
+        set('mapLat', String(Number(hit.lat).toFixed(6)));
+        set('mapLng', String(Number(hit.lon).toFixed(6)));
+      } else {
+        setError('Address map par malyu nahi — mini map par click kari pin muko.');
+      }
+    } catch {
+      setError('Address shodhvama error — mini map par click kari pin muko.');
+    } finally {
+      setFinding(false);
+    }
   };
 
   return (
@@ -129,6 +192,14 @@ export default function CafeForm({ initialValues, onSubmit, onCancel, title, sub
             value={form.foodSpecialties}
             onChange={(e) => set('foodSpecialties', e.target.value)}
             placeholder=""
+          />
+        </label>
+        <label className="field full">
+          Street Address
+          <input
+            value={form.address}
+            onChange={(e) => set('address', e.target.value)}
+            placeholder="Shop no, street, landmark…"
           />
         </label>
       </div>
@@ -206,6 +277,34 @@ export default function CafeForm({ initialValues, onSubmit, onCancel, title, sub
           Power Plugs Available
         </label>
       </div>
+
+      <fieldset className="env-box">
+        <legend>Map location</legend>
+        <p className="attach-hint" style={{ margin: '0 0 10px' }}>
+          Address lakhi <b>Find on map</b> dabavo, athva mini map par <b>click/drag</b> kari pin muko.
+        </p>
+        <div className="modal-actions" style={{ marginTop: 0, marginBottom: 10 }}>
+          <button type="button" className="btn-secondary" onClick={findOnMap} disabled={finding}>
+            {finding ? 'Shodhu chu…' : '🔍 Find on map'}
+          </button>
+          <button type="button" className="btn-secondary" onClick={useMyLocation}>
+            📍 Use my current location
+          </button>
+        </div>
+        <LocationPicker
+          lat={form.mapLat}
+          lng={form.mapLng}
+          onPick={(la, ln) => {
+            set('mapLat', String(la));
+            set('mapLng', String(ln));
+          }}
+        />
+        <p className="attach-hint">
+          {form.mapLat !== '' && form.mapLng !== ''
+            ? `Pin: ${form.mapLat}, ${form.mapLng}`
+            : 'Pin set nathi — khali rakhso to address + area + city parthi auto-detect thase.'}
+        </p>
+      </fieldset>
 
       <div className="form-grid" style={{ marginTop: 14 }}>
         <label className="field full">

@@ -1,5 +1,6 @@
 import './globals.css';
 import { AuthProvider } from './auth';
+import CursorAura from './components/CursorAura';
 
 export const metadata = {
   title: 'Cafe Experience Tracker',
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <CursorAura />
         <AuthProvider>
           <main className="container">{children}</main>
         </AuthProvider>

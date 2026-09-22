@@ -20,7 +20,7 @@ exports.createCafe = asyncHandler(async (req, res) => {
 
   // Auto map pin when the client didn't send one
   if (!req.body.location?.lat || !req.body.location?.lng) {
-    const pin = await geocode(req.body.area, city);
+    const pin = await geocode(req.body.area, city, req.body.address);
     if (pin) req.body.location = pin;
   }
 
@@ -66,10 +66,14 @@ exports.updateCafe = asyncHandler(async (req, res) => {
   if (!req.body.location?.lat || !req.body.location?.lng) {
     const existing = await Cafe.findOne(
       { _id: req.params.id, isDeleted: false },
-      { area: 1, city: 1, 'location.lat': 1 }
+      { address: 1, area: 1, city: 1, 'location.lat': 1 }
     );
     if (existing && !existing.location?.lat) {
-      const pin = await geocode(req.body.area ?? existing.area, req.body.city ?? existing.city);
+      const pin = await geocode(
+        req.body.area ?? existing.area,
+        req.body.city ?? existing.city,
+        req.body.address ?? existing.address
+      );
       if (pin) req.body.location = pin;
     }
   }

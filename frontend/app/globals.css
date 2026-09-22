@@ -644,6 +644,29 @@ button.danger { background: transparent; color: var(--red-btn); border: 1px soli
   width: 10px; height: 10px; border-radius: 50%;
   background: #245c45; display: inline-block; flex-shrink: 0;
 }
+/* Cluster badge for overlapping pins (theme green, overrides default blue) */
+.cafe-cluster-wrap { background: transparent; border: none; }
+.cafe-cluster {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #245c45; color: #fff;
+  border: 3px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; font-family: 'Inter', system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(33, 26, 19, 0.4);
+  cursor: pointer;
+}
+.cafe-cluster:hover { background: #17402f; }
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background: transparent; }
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background: transparent; }
+
+/* ---------- Mini map pin picker (Add/Edit form) ---------- */
+.pick-map { height: 260px; width: 100%; border-radius: 10px; z-index: 1; border: 1px solid var(--border, #e3d6bd); }
+.pick-pin {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #245c45; border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(33, 26, 19, 0.45);
+  cursor: grab;
+}
 .cafe-map-empty { margin: 0; padding: 14px 18px; color: var(--muted, #6f6257); font-size: 14px; }
 .cafe-pin-wrap { background: transparent; border: none; }
 .cafe-tag {
@@ -673,4 +696,201 @@ button.danger { background: transparent; color: var(--red-btn); border: 1px soli
 }
 @media (max-width: 640px) {
   .cafe-map { height: 320px; }
+}
+/* ===== NEBULA THEME (dark Automatez-style purple aura) ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 380px at 12% -4%, rgba(168, 85, 247, 0.22), transparent 65%),
+    radial-gradient(640px 420px at 88% 8%, rgba(79, 70, 229, 0.18), transparent 65%),
+    radial-gradient(700px 500px at 50% 110%, rgba(217, 154, 43, 0.10), transparent 65%);
+}
+body > * { position: relative; z-index: 1; }
+
+/* ---------- dashboard palette → nebula ---------- */
+:root {
+  --bg: #0d0a14;
+  --card: #171021;
+  --ink: #f3ecff;
+  --text: #f3ecff;
+  --accent: #a855f7;
+  --accent-deep: #7e22ce;
+  --star: #e2a63d;
+  --border: #2c2140;
+  --muted: #a89bbf;
+  --red-btn: #f87171;
+}
+body { background: var(--bg); color: var(--text); }
+
+/* ---------- site palette → nebula ---------- */
+.site {
+  --paper: #0d0a14;
+  --card: #171021;
+  --line: #2c2140;
+  --ink: #f3ecff;
+  --muted: #a89bbf;
+  --accent: #a855f7;
+  --accent-deep: #7e22ce;
+  --star: #e2a63d;
+  background: transparent;
+}
+
+/* ---------- navbar ---------- */
+.site-nav { background: rgba(13, 10, 20, 0.82); border-bottom: 1px solid var(--line); }
+.site-link:hover { background: #241838; }
+.site-link.active { background: linear-gradient(135deg, #a855f7, #6d28d9); color: #fff; }
+.site-cta { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.site-cta:hover { background: linear-gradient(135deg, #9333ea, #5b21b6); }
+.site-logout:hover { border-color: var(--accent); }
+
+/* ---------- hero / buttons ---------- */
+.site-btn-gold { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.site-btn-gold:hover { background: linear-gradient(135deg, #9333ea, #5b21b6); }
+.site-btn-ghost { border-color: rgba(243, 236, 255, 0.55); }
+.site-btn-ghost:hover { background: #a855f7; border-color: #a855f7; color: #fff; }
+.avatar-stack i { background: #2c2140; color: #e9defc; border-color: #0d0a14; }
+.site-proof-txt b { color: var(--star); }
+
+/* ---------- sections / cards ---------- */
+.site-marquee { background: #120c1e; }
+.site-spot-tag { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.site-spot .site-wifi, .site-wifi { color: #c084fc; }
+.site-stars { color: var(--star); }
+.site-pill { background: #2a1f3d; color: #d9c8f5; }
+.site-pill.green { background: rgba(168, 85, 247, 0.16); color: #c084fc; }
+.site-card { background: #171021; }
+.site-card:hover { box-shadow: 0 16px 34px rgba(168, 85, 247, 0.22); }
+.cover-badge { background: #a855f7; color: #fff; }
+.site-vibe:hover { border-color: var(--accent); }
+.site-vibe.active { background: linear-gradient(135deg, #a855f7, #6d28d9); border-color: transparent; color: #fff; }
+.site-vibe.active small { color: #e9defc; }
+.site-toolbar input, .site-toolbar select { background: #100b1a; }
+.site-step .n { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.site-empty { border-color: #3a2c55; }
+.site-notes { background: #100b1a; }
+.file-row { background: #100b1a; }
+.file-link { color: #c084fc; }
+.site-modal-actions .site-btn-gold { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.auth-card { box-shadow: 0 16px 44px rgba(168, 85, 247, 0.18); }
+.auth-field input { background: #100b1a; }
+.auth-switch a { color: #c084fc; }
+.site-foot-col a:hover, .site-foot-bottom a, .site-section-head a { color: #c084fc; }
+.site-back-row .back-btn { background: #171021; }
+
+/* ---------- dashboard surfaces ---------- */
+.hero, .stat-card, .table-card, .modal, .card { background: var(--card); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45); }
+.banner { background: #1c1330; color: #d9c8f5; }
+.back-btn { background: #171021; }
+.back-btn:hover { border-color: var(--accent); }
+.btn-add, .btn-primary { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.btn-add:hover, .btn-primary:hover { background: linear-gradient(135deg, #9333ea, #5b21b6); }
+.btn-edit { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.btn-edit:hover { background: #7e22ce; }
+.btn-delete { color: var(--red-btn); border-color: rgba(248, 113, 113, 0.45); }
+.btn-delete:hover { background: rgba(248, 113, 113, 0.10); }
+.cafe-table thead th { background: #211736; color: #c9b3ec; }
+.cafe-table tbody td { border-bottom: 1px solid #241a38; }
+.cafe-table tbody tr:hover { background: #1d1430; }
+.cafe-name { color: var(--ink); }
+.city-main { color: var(--ink); }
+.price { color: var(--ink); }
+.dash { color: #5d4a7d; }
+.pill-blue { background: #1e2a4a; color: #9db8f0; }
+.pill-green { background: rgba(168, 85, 247, 0.16); color: #c084fc; }
+.pill-yellow { background: rgba(226, 166, 61, 0.14); color: #eec27a; }
+.field { color: #c9b8e6; }
+.field input, .field select, .field textarea { background: #100b1a; }
+.env-box, .attach-box { background: #120c1e; }
+.modal h2, .env-box legend { color: var(--ink); }
+.check { color: #c9b8e6; }
+.attach-head { color: #c9b8e6; }
+.attach-row { background: #100b1a; }
+.attach-name { color: var(--ink); }
+.attach-add { background: #241838; color: var(--ink); }
+.attach-add:hover { border-color: var(--accent); }
+.error, .auth-error { color: #f87171; }
+.auth-server-error { background: rgba(248, 113, 113, 0.10); border-color: rgba(248, 113, 113, 0.4); color: #fca5a5; }
+.auth-field input.invalid { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12); }
+button.secondary { color: var(--ink); }
+.site-close { color: var(--muted); }
+.site-close:hover { color: var(--ink); border-color: var(--accent); }
+.empty, .muted { color: var(--muted); }
+input, select, textarea { background: #100b1a; color: var(--ink); }
+
+/* ---------- map on dark ---------- */
+.cafe-map-card { background: #171021; border-color: #a855f7; }
+.cafe-map { border-bottom-color: #a855f7; }
+.leaflet-tile-pane { filter: brightness(0.88) contrast(1.05) saturate(0.82); }
+.leaflet-popup-content-wrapper { background: #1c1330; color: #f3ecff; border: 1px solid #3a2c55; }
+.leaflet-popup-tip { background: #1c1330; border: 1px solid #3a2c55; }
+.leaflet-popup-close-button { color: #a89bbf !important; }
+.cafe-pin-pop span { color: #a89bbf; }
+.cafe-pin-pop button { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.leaflet-bar a { background: #1c1330; color: #f3ecff; border-color: #3a2c55; }
+.leaflet-bar a:hover { background: #2a1f45; color: #fff; }
+.leaflet-control-attribution { background: rgba(13, 10, 20, 0.75) !important; color: #8d7cab !important; }
+.leaflet-control-attribution a { color: #b39ddb !important; }
+.cafe-tag-name { background: #1c1330; color: #f3ecff; border-color: #a855f7; }
+.cafe-tag:hover .cafe-tag-name { background: #a855f7; color: #fff; }
+.cafe-tag-dot { background: #a855f7; }
+.cafe-map-legend, .cafe-map-empty { color: var(--muted); background: #120c1e; }
+.pick-map { border-color: var(--border); }
+.pick-pin { background: #a855f7; }
+
+/* ============================================================
+   CURSOR AURA — colors trailing the cursor across every page.
+   ============================================================ */
+.cursor-aura {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+.cursor-aura .blob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.cursor-aura .b1 {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.55), transparent 65%);
+  transform: translate(calc(var(--ax, 50vw) - 260px), calc(var(--ay, 30vh) - 260px));
+  transition: transform 0.12s linear;
+}
+.cursor-aura .b2 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(217, 70, 160, 0.42), transparent 65%);
+  transform: translate(calc(var(--bx, 50vw) - 190px), calc(var(--by, 30vh) - 190px));
+  transition: transform 0.22s linear;
+  animation: aura-hue 9s linear infinite;
+}
+.cursor-aura .b3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(226, 166, 61, 0.30), transparent 65%);
+  transform: translate(calc(var(--cx, 50vw) - 150px), calc(var(--cy, 30vh) - 150px));
+  transition: transform 0.34s linear;
+  animation: aura-hue 12s linear infinite reverse;
+}
+@keyframes aura-hue {
+  to { filter: blur(90px) hue-rotate(360deg); }
+}
+@media (pointer: coarse) {
+  .cursor-aura { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor-aura, body::before { display: none; }
+  .cursor-aura .b2, .cursor-aura .b3 { animation: none; }
 }
