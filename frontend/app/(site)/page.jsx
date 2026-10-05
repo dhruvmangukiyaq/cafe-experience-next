@@ -33,6 +33,19 @@ export default function HomePage() {
 
   useEffect(load, []);
 
+  // Live clock (HH:MM:SS) for the hero eyebrow — starts as a placeholder so the
+  // server render and the first client render match, then ticks every second.
+  const [now, setNow] = useState(null);
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const pad = (n) => String(n).padStart(2, '0');
+  const clock = now
+    ? `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+    : '--:--:--';
+
   const topRated = useMemo(
     () => [...cafes].sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0)).slice(0, 3),
     [cafes]
@@ -45,6 +58,9 @@ export default function HomePage() {
     <>
       <header className="site-hero">
         <div className="site-hero-inner">
+        <div className="site-clock reveal" role="timer" aria-label="Current time">
+          <span aria-hidden="true">{clock}</span>
+        </div>
         <span className="site-eyebrow reveal">Work • Chill • Repeat</span>
         <h1 className="reveal d1">Find your perfect <em>cafe escape</em></h1>
         <p className="reveal d2">
