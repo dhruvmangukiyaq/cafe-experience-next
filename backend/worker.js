@@ -7,7 +7,7 @@ export { ApiDO } from './src/api-do.js';
 
 export default {
   async fetch(request, env) {
-    const id = env.API_DO.idFromName('api');
+    const id = env.API_DO.idFromName('api-v2');
     return env.API_DO.get(id).fetch(request);
   },
 };

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { getCafes } from '../apiClient';
+import { fetchServerTime, getCafes } from '../apiClient';
 import { avgRating, coverFor, isWorkFriendly, ratingStars, toArray, wifiSpeedLabel } from '../site-helpers';
 import CafeCard from '../components/CafeCard';
 import CafeDetailModal from '../components/CafeDetailModal';
@@ -33,18 +33,35 @@ export default function HomePage() {
 
   useEffect(load, []);
 
-  // Live clock (HH:MM:SS) for the hero eyebrow — starts as a placeholder so the
-  // server render and the first client render match, then ticks every second.
-  const [now, setNow] = useState(null);
+  // Live clock (HH:MM:SS) — REAL AJAX: every second the browser fires a
+  // fetch() to GET /api/time and renders whatever the server answers.
+  // Starts as a placeholder so SSR and the first client render match.
+  // If the network drops, we fall back to the local clock so the UI never freezes.
+  const [clock, setClock] = useState('--:--:--');
   useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
+    const pad = (n) => String(n).padStart(2, '0');
+    const localTime = () => {
+      const d = new Date();
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    let alive = true;
+    const tick = async () => {
+      try {
+        const { time } = await fetchServerTime();
+        if (alive) setClock(time);
+      } catch {
+        if (alive) setClock(localTime()); // offline → keep ticking locally
+      }
+    };
+
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
   }, []);
-  const pad = (n) => String(n).padStart(2, '0');
-  const clock = now
-    ? `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
-    : '--:--:--';
 
   const topRated = useMemo(
     () => [...cafes].sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0)).slice(0, 3),

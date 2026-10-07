@@ -37,6 +37,24 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'Cafe Experience Tracker API is running' });
 });
 
+// Live clock source for the hero AJAX clock.
+// The client passes its UTC offset in minutes (?tzOffset=-330 for IST) so the
+// server — the single authoritative clock — formats HH:MM:SS in the visitor's
+// own timezone. One authoritative source, no timezone drift.
+app.get('/api/time', (req, res) => {
+  const parsed = Number(req.query.tzOffset);
+  const tzOffset = Number.isFinite(parsed) ? parsed : -new Date().getTimezoneOffset();
+  const d = new Date(Date.now() + tzOffset * 60000);
+  const pad = (n) => String(n).padStart(2, '0');
+  res.json({
+    success: true,
+    data: {
+      time: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`,
+      epoch: Date.now(),
+    },
+  });
+});
+
 // All cafe CRUD routes live under /api/cafes
 app.use('/api/cafes', cafeRoutes);
 

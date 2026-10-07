@@ -45,6 +45,19 @@ function toQueryString(filters = {}) {
   return qs ? `?${qs}` : '';
 }
 
+// GET /api/time?tzOffset=… — server-authoritative clock (AJAX tick).
+// tzOffset = minutes to ADD to UTC (= -new Date().getTimezoneOffset()),
+// so IST clients send 330 and get HH:MM:SS in Indian time.
+export async function fetchServerTime() {
+  const tzOffset = -new Date().getTimezoneOffset();
+  const res = await fetch(`${API_BASE_URL}/api/time?tzOffset=${tzOffset}`);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || body.success === false) {
+    throw new Error(body.message || `Time request failed with status ${res.status}`);
+  }
+  return body.data; // { time: "HH:MM:SS", epoch }
+}
+
 // Unwraps { success, data } and throws a readable error on failure
 async function handleResponse(res) {
   const body = await res.json().catch(() => ({}));
