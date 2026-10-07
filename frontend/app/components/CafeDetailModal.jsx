@@ -6,7 +6,7 @@ import { coverFor, ratingStars, toArray, wifiStars, wifiSpeedLabel } from '../si
 import { listFiles, fileViewUrl, fileDownloadUrl, prettySize, fileIcon } from '../apiClient';
 
 // Read-only detail modal. Editing still happens only via the
-// existing CRUD routes (/dashboard, /edit/:id) — linked below.
+// existing CRUD routes (/dashboard, /edit?id=…) — linked below.
 export default function CafeDetailModal({ cafe, onClose }) {
   const [files, setFiles] = useState([]);
 
@@ -68,7 +68,7 @@ export default function CafeDetailModal({ cafe, onClose }) {
           )}
 
           <div className="site-modal-actions">
-            <Link href={`/edit/${cafe._id}`} className="site-btn site-btn-gold site-btn-sm">Edit cafe</Link>
+            <Link href={`/edit?id=${cafe._id}`} className="site-btn site-btn-gold site-btn-sm">Edit cafe</Link>
             <Link href="/dashboard" className="site-btn site-btn-ghost site-btn-sm">Manage in Dashboard</Link>
             <button className="site-close" onClick={onClose}>Close</button>
           </div>

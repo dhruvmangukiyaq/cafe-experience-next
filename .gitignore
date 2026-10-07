@@ -17,5 +17,11 @@ nohup.out
 backend/backend.log
 frontend/frontend.log
 
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+frontend/.open-next/
+
 # OS
 .DS_Store

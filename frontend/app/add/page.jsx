@@ -28,7 +28,7 @@ function AddCafeContent() {
         } catch {
           // Cafe is saved; jump to its Edit page where files upload live,
           // so retrying never creates a duplicate cafe.
-          router.push(`/edit/${cafe._id}`);
+          router.push(`/edit?id=${cafe._id}`);
           return;
         }
       }

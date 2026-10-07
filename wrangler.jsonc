@@ -1,0 +1,36 @@
+// Cloudflare Worker config for the whole Cafe Experience Tracker app.
+//
+//   - assets:    serves the statically-exported Next.js site (frontend/out)
+//   - Worker:    forwards non-asset requests (/api/*) to the ApiDO
+//   - ApiDO:     Durable Object hosting the unchanged Express app + the
+//                warm MongoDB connection (plain Workers cannot pool TCP
+//                sockets across requests; Durable Objects can)
+//
+// Secrets (MONGODB_URI, JWT_SECRET) are set with:
+//   npx wrangler secret put MONGODB_URI
+//   npx wrangler secret put JWT_SECRET
+// Local values go in .dev.vars (gitignored).
+{
+  "name": "cafe-experience",
+  "main": "backend/worker.js",
+  "compatibility_date": "2026-10-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./frontend/out",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  },
+  "alias": {
+    // mongoose's package.json "browser" field points at an ESM browser build
+    // that breaks under wrangler's bundler; force the Node entrypoint.
+    "mongoose": "./backend/node_modules/mongoose/index.js",
+    // bcryptjs pulls in iconv-lite, whose streams code is incompatible with
+    // workerd. Password hashing only needs encode/decode, so we shim it.
+    "iconv-lite": "./backend/src/iconv-lite-shim.js"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "API_DO", "class_name": "ApiDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ApiDO"] }],
+  "observability": { "enabled": true }
+}

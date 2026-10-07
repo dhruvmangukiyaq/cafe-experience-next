@@ -26,7 +26,7 @@
 
 **Cafe Experience Tracker** is a full-stack web app for building your personal cafe journal. Browse a curated home page, find spots by vibe (Work Mode / Chill / Date Night), log in, and manage every visit — ratings, WiFi quality, pricing, ambience, notes, photos and documents — from a clean CRUD dashboard backed by an **Express.js + Mongoose API** and a **Next.js 14** frontend.
 
-> 💡 **Note:** This project was built for portfolio and learning purposes — full-stack architecture, JWT authentication, file uploads, and monorepo deployment on Vercel.
+> 💡 **Note:** This project was built for portfolio and learning purposes — full-stack architecture, JWT authentication, file uploads, and monorepo deployment on Cloudflare Workers (static frontend + API in a Durable Object).
 
 ---
 
@@ -46,7 +46,7 @@
 
 ### 🔐 3. Authentication (JWT)
 - **Register & Login:** Validated forms with show/hide password, server error mapping (`/register`, `/login`).
-- **Protected Routes:** `/dashboard`, `/add`, `/edit/:id` redirect logged-out visitors to login and return them after (`?from=`).
+- **Protected Routes:** `/dashboard`, `/add`, `/edit?id=…` redirect logged-out visitors to login and return them after (`?from=`).
 - **Persistent Sessions:** JWT in localStorage, restored via `/api/auth/me` on reload.
 
 ### 📊 4. Dashboard CRUD
@@ -87,11 +87,11 @@
 
 ```bash
 cafe-experience-next/
-├── vercel.json                # Vercel Services: frontend + backend on one domain
+├── wrangler.jsonc               # Cloudflare: static frontend + API (Durable Object)
 ├── README.md
 │
 ├── backend/                   # 🚀 Express API (Port 5002)
-│   ├── server.js              # Entry point: middleware chain, route mounts, Vercel export
+│   ├── server.js              # Entry point: middleware chain, route mounts, exports the app
 │   ├── config/db.js           # MongoDB connection helper (MONGODB_URI from .env)
 │   ├── models/                # Mongoose schemas
 │   │   ├── Cafe.js            # Cafe + environment, rating, soft-delete flag
@@ -208,20 +208,43 @@ Visit **`http://localhost:3000`** in your browser. (Locally the frontend calls t
 
 ---
 
-## 🚢 Production Deployment
+## 🚢 Production Deployment (Cloudflare)
 
-The repo ships with `vercel.json` **Services** config — frontend + backend deploy as one project on a single domain (`/api/*` → backend service, everything else → frontend):
+The whole app — static frontend **and** the Express/MongoDB API — deploys to **one Cloudflare Worker**:
+
+- `wrangler.jsonc` (repo root) serves the statically-exported Next.js site (`frontend/out`) via the assets binding.
+- Non-asset requests (`/api/*`) are forwarded to the **`ApiDO` Durable Object**, which runs the Express app unchanged and holds the warm MongoDB connection.
+  (A plain Worker can't pool TCP sockets across requests — workerd ties sockets to the request that created them, so queries hang intermittently. Durable Objects are stateful, so the Mongoose pool stays healthy.)
+
+### Deploy from the Cloudflare dashboard (GitHub integration)
+
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Worker** → connect this GitHub repo.
+2. Build settings (defaults that work with this repo):
+   - **Root directory:** `/`
+   - **Build command:** `npm run build` (installs all workspaces, then exports the frontend to `frontend/out`)
+   - **Wrangler config path:** `wrangler.jsonc`
+3. Under **Settings → Variables and Secrets**, add:
+   - `MONGODB_URI` (Secret) — MongoDB Atlas connection string
+   - `JWT_SECRET` (Secret) — long random secret for signing tokens
+4. Deploy. Every `git push` to the tracked branch redeploys.
+
+### Deploy from the terminal
 
 ```bash
-git push origin main
-# Vercel auto-redeploys both services
+npx wrangler secret put MONGODB_URI   # once
+npx wrangler secret put JWT_SECRET    # once
+npm run deploy                        # builds frontend/out + wrangler deploy
 ```
 
-Set these environment variables on the **backend service** in the Vercel dashboard:
-- `MONGODB_URI` — MongoDB connection string
-- `JWT_SECRET` — long random secret for signing tokens
+Live URL: `https://cafe-experience.dhruvmangukiya111.workers.dev`
 
-Also ensure the Vercel project's Framework setting is **Services**.
+### Local full-stack preview (exactly like production)
+
+```bash
+npm run dev:cf        # wrangler dev — static site + /api on http://localhost:8788
+```
+
+(Local values for `MONGODB_URI` / `JWT_SECRET` go in `.dev.vars` — it is gitignored. `npm run dev` still runs the classic Node backend + `next dev` for frontend work.)
 
 ---
 

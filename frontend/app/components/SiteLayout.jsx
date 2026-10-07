@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../auth';
 
 // Wrapper ONLY for the website pages (Home, Explore, Login, Register).
-// Dashboard (/dashboard), Add (/add) and Edit (/edit/:id) render
+// Dashboard (/dashboard), Add (/add) and Edit (/edit?id=…) render
 // outside this layout so the CRUD UI stays exactly as-is.
 export default function SiteLayout({ children }) {
   const pathname = usePathname();
